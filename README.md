@@ -26,7 +26,7 @@ python logreg_experiment.py --dataset <dataset_name> --model <model_name> --d <l
 
 - `--dataset`: Name of the dataset file (e.g., `tecator.arff`)
 - `--model`: One of the following:
-  - `litlvmV1`, `litlvmV2`
+  - `litlvmV1`
   - `elasticnet`: Elastic Net baseline
 - `--d`: Latent dimension (default: 2)
 - `--lr`: Learning rate (default: 0.05)
