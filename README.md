@@ -190,7 +190,7 @@ Example for ElasticNet:
 python sim_logreg_experiment_elasticnet.py --p 60 --d 2 --V_noise 0.01 --sparsity 1 --noise 1 --interaction 1 --sigma 0.0001
 ```
 
-### ⚙ Controllable Parameters (Inside Each Script)
+###  Controllable Parameters (Inside Each Script)
 
 The following values can be **manually changed from within each script** (not from command-line arguments):
 
