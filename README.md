@@ -149,10 +149,102 @@ To enforce SparseFM, we use **very high values** of this regularization strength
 'gamma': [1e5, 1e6, 1e7, 1e8]
 ```
 
-This encourages SparseFM to learn sparse latent representations of interaction terms.
-
 ###  Notes
 
 - `gamma` in the code corresponds to the latent structure regularization strength discussed in the paper.
 - No modifications to the script are needed—only the `param_grid_1` setting must be adjusted.
+
+## Simulated Data Experiments – Logistic Regression
+
+We perform simulation experiments to evaluate the performance of **LIT-LVM**, **ElasticNet**, and **Factorization Machines (FM)** under controlled conditions. Each method has its own experiment file:
+
+- `sim_logreg_experiment_litlvm.py` — for LIT-LVM
+- `sim_logreg_experiment_elasticnet.py` — for ElasticNet
+- `sim_logreg_experiment_FMs.py` — for Factorization Machines
+
+All experiments use the same simulation class (`LogisticRegression_Simulator`) and share a similar procedure to the real data experiments. The key difference is that **data is synthetically generated** based on a known low-rank structure with configurable noise and sparsity.
+
+### How to Run
+
+Each script supports CLI arguments to control the simulation setup:
+
+```bash
+python sim_logreg_experiment_<model>.py --p <feature_dim> --d <latent_dim> --V_noise <noise_level> --sparsity <0_or_1> --noise <0_or_1> --interaction <0_or_1> --sigma <sparsity_strength>
+```
+
+Example for LIT-LVM:
+
+```bash
+python sim_logreg_experiment_litlvm.py --p 60 --d 2 --V_noise 0.01 --sparsity 1 --noise 1 --interaction 1 --sigma 0.0001 
+```
+
+Example for FM:
+
+```bash
+python sim_logreg_experiment_FMs.py --p 60 --d 5 --V_noise 0.01 --sparsity 0 --noise 1 --interaction 1 --sigma 0.0001 --gamma 1e6
+```
+
+Example for ElasticNet:
+
+```bash
+python sim_logreg_experiment_elasticnet.py --p 60 --d 2 --V_noise 0.01 --sparsity 1 --noise 1 --interaction 1 --sigma 0.0001
+```
+
+### ⚙ Controllable Parameters (Inside Each Script)
+
+The following values can be **manually changed from within each script** (not from command-line arguments):
+
+| Parameter             | Variable Name     | Description                                                                 |
+|-----------------------|-------------------|-----------------------------------------------------------------------------|
+| Training samples      | `num_samples`     | Number of samples per train/val/test set                                   |
+| Learning rate         | `learning_rate`   | Step size for gradient descent                                             |
+| Number of epochs      | `num_epochs`      | Training duration                                                           |
+| Early stopping        | `es_threshold`    | Number of epochs without improvement to stop                               |
+| Number of splits      | `data_split` loop | Number of independent train/val/test runs (set to 5 by default)            |
+| Model depth (FM, LIT-LVM) | `d`           | Latent dimension, also varies across models internally (2, 5, 10) for FM/LIT-LVM |
+| Param grid            | `param_grid`      | Hyperparameter grid for model selection, including `alpha`, `kappa`, `gamma` |
+| Regularization strength (`gamma`) | `gamma` (LIT-LVM) | Controlled via CLI and used to penalize latent structure                  |
+
+- In **LIT-LVM**, we search over values of `gamma`, corresponding to **latent structure regularization strength**.
+- In **ElasticNet**, `gamma` is fixed at 0 (no latent structure penalty).
+- In **FM**, the dimension `d` is varied manually`.
+
+###  Output
+
+Each script logs results (AUC, MSE of coefficients) to a file like:
+
+```
+experiments/results/simulations/logistic_regression/<DATE>/<MODEL>_p:<p>_d:<d>_lr:<lr>_Noise:<...>.txt
+```
+
+The logs include:
+- AUC on held-out test set
+- MSE between true and estimated coefficients (`w`) and interaction matrices (`V`)
+- Standard errors across runs
+
+```python
+# Example output summary in file
+result_2: [0.91, 0.89, 0.92, ...], mean: 0.905, SE: 0.012
+result_2_w_MSE: [...], result_2_V_MSE: [...]
+```
+
+###  Summary
+
+- Use different scripts for each baseline.
+- Set model and experiment type via CLI.
+- Modify training/control settings inside the script.
+- Results are automatically logged with reproducible configurations.
+
+##  Simulated Data Experiments – Linear Regression
+
+The linear regression simulations follow **exactly the same structure** as the logistic regression experiments. The only difference is that they use regression-specific simulators and evaluation metrics.
+
+The corresponding scripts are:
+
+- `sim_linreg_experiment_litlvm.py`
+- `sim_linreg_experiment_elasticnet.py`
+- `sim_linreg_experiment_FMs.py`
+
+
+
 
