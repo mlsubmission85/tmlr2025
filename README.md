@@ -38,7 +38,7 @@ python logreg_experiment.py --dataset <dataset_name> --model <model_name> --d <l
 python logreg_experiment.py --dataset tecator.arff --model litlvmV2 --d 2 --lr 0.01 --note "Running LIT-LVM v2 with d=2"
 ```
 
-### ⚙ Modifiable Parameters
+###  Modifiable Parameters
 
 You can tune the following parameters directly **within the script**:
 
@@ -67,3 +67,92 @@ Results are automatically saved in a text file under the specified output folder
 ```
 
 The output includes the average AUC scores for each repetition and the best hyperparameters selected during tuning.
+
+
+##  Real Data Experiments – Linear Regression
+
+These experiments evaluate different linear regression models on real datasets with interaction terms.
+
+The setup is **similar to the logistic regression experiments**, but the script and models are tailored for regression tasks.
+
+###  Script: `linreg_experiment.py`
+
+###  Requirements
+
+Ensure the same dependencies and structure as the logistic regression experiment are available, including:
+
+- `utils.py` (defines `GridSearch`)
+- `dataset.py` (defines `data_loader`)
+- Model files: `linreg_LIT_LVM_V1.py`
+
+###  How to Run
+
+```bash
+python linreg_experiment.py --dataset <dataset_name> --model <model_name>
+```
+
+- `--dataset`: Name of the dataset file (e.g., `tecator.arff`)
+- `--model`: Choose one of the following:
+  - `litlvmV1`
+  - `elasticnet`: Elastic Net baseline
+
+###  Example
+
+```bash
+python linreg_experiment.py --dataset tecator.arff --model litlvmV1
+```
+
+###  Modifiable Parameters
+
+As with the logistic regression script, the following parameters can be modified **within `linreg_experiment.py`**:
+
+| Parameter            | Variable Name     | Description                       |
+|----------------------|-------------------|-----------------------------------|
+| Latent dimension     | `d`               | Dimension of latent embedding     |
+| Learning rate        | `learning_rate`   | Learning rate                     |
+| Number of epochs     | `num_epochs`      | Training epochs                   |
+| Number of folds      | `folds`           | For cross-validation              |
+| Number of experiments| `num_experiments` | Number of repeated runs           |
+| Early stopping tol   | `es_threshold`    | Patience for early stopping       |
+| Train/val/test sizes | `train_size`, `val_size`, `test_size` | Data splitting ratios       |
+| Hyperparam grid      | `param_grid_1`, `param_grid_2` | For tuning LIT-LVM or Elastic Net |
+
+- Use `param_grid_1` for LIT-LVM models.
+- Use `param_grid_2` for Elastic Net models.
+
+###  Output
+
+Results will be saved under:
+
+```
+experiments/results/Linear_Regression/<DATE>/<dataset_name>_model:<model_name>_lr:<learning_rate>_threshold:<es_threshold>_tol:<tol>_folds:<folds>.txt
+```
+
+Each file includes R² scores and RMSE across runs, along with best hyperparameters per trial.
+
+## Real Data Experiments – SparseFM Baselines
+
+To evaluate SparseFM baselines on real data, we use the **same scripts** as for the LIT-LVM models:
+
+- `logreg_experiment.py` for classification tasks
+- `linreg_experiment.py` for regression tasks
+
+The overall workflow—data loading, model training, evaluation—remains unchanged. The only difference is in the hyperparameter configuration.
+
+###  Parameter Configuration
+
+Hyperparameter tuning is controlled via `param_grid_1` in both scripts. For SparseFM, we **fix all other hyperparameters** and only **search over values of `gamma`**, which corresponds to the **regularization strength on the latent structure** in our paper.
+
+To enforce SparseFM, we use **very high values** of this regularization strength:
+
+```python
+'gamma': [1e5, 1e6, 1e7, 1e8]
+```
+
+This encourages SparseFM to learn sparse latent representations of interaction terms.
+
+###  Notes
+
+- `gamma` in the code corresponds to the latent structure regularization strength discussed in the paper.
+- No modifications to the script are needed—only the `param_grid_1` setting must be adjusted.
+
