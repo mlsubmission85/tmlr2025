@@ -18,7 +18,7 @@ Ensure the following files are available in the repository:
 - `dataset.py` (should define `data_loader`)
 - Model file: `logreg_LIT_LVM_V1.py`
 
-### 🏃‍♀️ How to Run
+###  How to Run
 
 ```bash
 python logreg_experiment.py --dataset <dataset_name> --model <model_name> --d <latent_dim> --lr <learning_rate> --note "<your notes>"
